@@ -175,10 +175,11 @@ bool createGraph(FILE* pFile) {
 int main() {
     //pula pamieci
     int numGraph;
-    //FILE* pFile = fopen ("test.txt","r");
+    FILE* pFile = fopen ("test.txt","r");
     //fscanf(pFile, "%d\n", &numGraph);
     fscanf(stdin, "%d\n", &numGraph);
     while(numGraph-- > 0) {
+//        if(createGraph(pFile)) {
         if(createGraph(stdin)) {
             fprintf(stdout, "tak\n");
         } else {
@@ -187,3 +188,4 @@ int main() {
     }
     return 0;
 }
+/**/
