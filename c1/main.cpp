@@ -43,6 +43,7 @@ bool checkGraph(node** G, long v, long* Gc) {
     int i3;
     int i5;
     int s1 = 0;
+    int s2 = 0;
     int s3 = 0;
     int s5 = 0;
     for(int i = 0; i < v; ++i) {
@@ -54,6 +55,7 @@ bool checkGraph(node** G, long v, long* Gc) {
                 return false;
             break;
         case 2:
+            s2++;
             break;
         case 3:
             if(s3 == 0) {
@@ -134,6 +136,8 @@ bool checkGraph(node** G, long v, long* Gc) {
         }
         tmp3 = tmp3->next;
     }
+    if(z3do5[0]+z3do5[1]+z3do5[2]+z1do5[0]+z1do5[1]-5 < s2)
+        return false;
     if(z3do5[0] == z3do5[1] && z3do5[0] > z3do5[2] && z3do5[2] > z1do5[0])
         return true;
     if(z3do5[0] == z3do5[2] && z3do5[0] > z3do5[1] && z3do5[1] > z1do5[0])
@@ -171,7 +175,8 @@ bool createGraph(FILE* pFile) {
 int main() {
     //pula pamieci
     int numGraph;
-    //FILE* pFile = fopen ("/home/skyman/projects/PJWSTK/ASD/c1/test.txt","r");
+    //FILE* pFile = fopen ("test.txt","r");
+    //fscanf(pFile, "%d\n", &numGraph);
     fscanf(stdin, "%d\n", &numGraph);
     while(numGraph-- > 0) {
         if(createGraph(stdin)) {
