@@ -171,10 +171,10 @@ bool createGraph(FILE* pFile) {
 int main() {
     //pula pamieci
     int numGraph;
-    FILE* pFile = fopen ("/home/skyman/projects/PJWSTK/ASD/c1/test.txt","r");
-    fscanf(pFile, "%d\n", &numGraph);
+    //FILE* pFile = fopen ("/home/skyman/projects/PJWSTK/ASD/c1/test.txt","r");
+    fscanf(stdin, "%d\n", &numGraph);
     while(numGraph-- > 0) {
-        if(createGraph(pFile)) {
+        if(createGraph(stdin)) {
             fprintf(stdout, "tak\n");
         } else {
             fprintf(stdout, "nie\n");
