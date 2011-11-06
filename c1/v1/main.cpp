@@ -176,11 +176,11 @@ int main() {
     //pula pamieci
     int numGraph;
     FILE* pFile = fopen ("test.txt","r");
-    //fscanf(pFile, "%d\n", &numGraph);
-    fscanf(stdin, "%d\n", &numGraph);
+    fscanf(pFile, "%d\n", &numGraph);
+//    fscanf(stdin, "%d\n", &numGraph);
     while(numGraph-- > 0) {
-//        if(createGraph(pFile)) {
-        if(createGraph(stdin)) {
+        if(createGraph(pFile)) {
+  //      if(createGraph(stdin)) {
             fprintf(stdout, "tak\n");
         } else {
             fprintf(stdout, "nie\n");

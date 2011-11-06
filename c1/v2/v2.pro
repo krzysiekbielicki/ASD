@@ -5,6 +5,8 @@
 #-------------------------------------------------
 TARGET = v2
 TEMPLATE = app
+CONFIG = console
+QT -= core gui
 
 SOURCES += reduct.cpp
 

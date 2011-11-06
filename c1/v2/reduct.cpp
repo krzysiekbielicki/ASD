@@ -1,6 +1,5 @@
 #include <cstdio>
 
-//#define MAX_E 10000000
 #define MAX_V 10000000
 
 
@@ -11,8 +10,10 @@ struct node {
 };
 
 node* mempool = new node[MAX_V*2];
-node** G = new node*[MAX_V];
-long* Gc = new long[MAX_V];
+node* Gg[MAX_V] = {NULL};
+node** G = Gg;
+int Ggc[MAX_V] = {0};
+int* Gc = Ggc;
 
 int memsize = 0;
 
@@ -24,7 +25,7 @@ void add_el(node** el, int v) {
     *el = e;
 }
 
-bool checkGraph(node** G, long v, long* Gc) {
+bool checkGraph(int v) {
     //sprawdzam, czy graf posiada dwa wieszchołki st 1, jeden st 3, jedes st 5
     int i1[2];
     int i3;
@@ -66,28 +67,22 @@ bool checkGraph(node** G, long v, long* Gc) {
     //redukuję graf - usuwam wierzchołki stopnia 2
     for(int i = 0; i < v; ++i) {
         if(Gc[i] == 2) {
-            Gc[i] = 0;
-            int v1 = G[i]->v;
-            int w1 = G[i]->w;
-            int v2 = G[i]->next->v;
-            int w2 = G[i]->next->w;
-            G[i] = NULL;
-            if(v1 == v2)
+            if(G[i]->v == G[i]->next->v)
                 return false;
-            node* tmp = G[v1];
+            node* tmp = G[G[i]->v];
             while(tmp != NULL) {
                 if(tmp->v == i) {
-                    tmp->v = v2;
-                    tmp->w += w2;
+                    tmp->v = G[i]->next->v;
+                    tmp->w += G[i]->next->w;
                     break;
                 }
                 tmp = tmp->next;
             }
-            tmp = G[v2];
+            tmp = G[G[i]->next->v];
             while(tmp != NULL) {
                 if(tmp->v == i) {
-                    tmp->v = v1;
-                    tmp->w += w1;
+                    tmp->v = G[i]->v;
+                    tmp->w += G[i]->w;
                     break;
                 }
                 tmp = tmp->next;
@@ -109,7 +104,7 @@ bool checkGraph(node** G, long v, long* Gc) {
     for(int i = 0; i < 2; i++) {
         if(G[i1[i]]->v != i5) return false;
     }
-    if(G[i1[0]]->w != G[i1[1]]->w)
+    if(G[i1[0]]->w != G[i1[1]]->w)//sprawdzam, czy czułki są równej długości
         return false;
     //sprawdzam, czy z wierzcholka st.3 mozna dojsc do wierzcholka st.5 tż dwie drogi są równej długości, a trzeci krótsza o co najmniej 1
     int z3do5[3];
@@ -127,42 +122,49 @@ bool checkGraph(node** G, long v, long* Gc) {
         return true;
 
     return false;
-
 }
 
-bool createGraph(FILE* pFile) {
+bool createGraph() {
     int v;
     int e;
 
-    fscanf(pFile, "%d %d", &v, &e);
-    for(int i = 0; i < v; ++i) {
+    fscanf(stdin, "%d %d", &v, &e);
+    /*for(int i = 0; i < v; ++i) {
         G[i] = NULL;
         Gc[i] = 0;
-    }
+    }*/
+    bool ret = true;
     for(int i = 0; i < e; ++i) {
         int x, y;
-        fscanf(pFile, "%d %d", &x, &y);
-        add_el(&G[x], y); //Dodawanie krawedzi miedzy wierzcholkiem x i y
-        add_el(&G[y], x); //Dodawanie krawedzi miedzy wierzcholkiem x i y
-        Gc[x]++;
-        Gc[y]++;
+        fscanf(stdin, "%d %d", &x, &y);
+        ret &= (x!=y);
+        if(ret) {
+            add_el(&G[x], y); //Dodawanie krawedzi miedzy wierzcholkiem x i y
+            add_el(&G[y], x); //Dodawanie krawedzi miedzy wierzcholkiem x i y
+            Gc[x]++;
+            Gc[y]++;
+        }
     }
-    return checkGraph(G, v, Gc);
+    if(!ret) return false;
+    ret = checkGraph(v);
+    G = (G+v);
+    Gc = (Gc+v);
+    return ret;
 
 }
 
 int main() {
     int numGraph;
-    FILE* pFile = fopen ("test.txt","r");
-//    fscanf(pFile, "%d\n", &numGraph);
-    fscanf(stdin, "%d\n", &numGraph);
+    fscanf(stdin, "%d", &numGraph);
     while(numGraph-- > 0) {
-//        if(createGraph(pFile)) {
-        if(createGraph(stdin)) {
+        if(createGraph()) {
             fprintf(stdout, "tak\n");
         } else {
             fprintf(stdout, "nie\n");
         }
     }
+    //delete[] G;
+    //delete[] Gc;
+    delete[] mempool;
     return 0;
 }

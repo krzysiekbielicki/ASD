@@ -6,6 +6,9 @@
 TARGET = v1
 
 TEMPLATE = app
+CONFIG = console
+QT -= core gui
+
 
 SOURCES += main.cpp
 
