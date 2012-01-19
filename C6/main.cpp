@@ -14,18 +14,18 @@ struct node {
 
 node** F;
 
-int* p;
+unsigned int* p;
 
 node* mempool;
 int memcount;
 
-int FindSet(int x) {
+int FindSet(unsigned int x) {
     if(x != p[x])
         return FindSet(p[x]);
     return x;
 }
 
-void Union(int x, int y) {
+void Union(unsigned int x, unsigned int y) {
     int nx = FindSet(x);
     int ny = FindSet(y);
     if(nx == ny)
@@ -113,8 +113,8 @@ public:
     }
 
     void addEdge(unsigned int fromNode, unsigned int toNode) {
+        //fprintf(stdout, "%u %u\n", fromNode, toNode);
         Edge *e = &eMemPool[eMemCount++];
-
         e->to = toNode;
         e->next = nodes[fromNode];
         nodes[fromNode] = e;
@@ -135,10 +135,22 @@ void performTest(Graph *g) {
     unsigned int *d = new unsigned int[g->getSize()];
 
     unsigned int *color = new unsigned int[g->getSize()];
+    mempool = new node[2*g->getSize()];
+    memcount = 0;
+
     Queue f;
     unsigned int M;
     fscanf(stdin, "%u", &M);
-    F = new node*[M];
+    p = new unsigned int[g->getSize()];
+    for(int i = 0; i < g->getSize(); i++) {
+        p[i] = i;
+    }
+    F = new node*[g->getSize()];
+    for (unsigned int i = 0; i < g->getSize(); i++) {
+        color[i] = INT_MAX;
+        d[i] = 0;
+    }
+
     while(M--) {
         unsigned int v;
         fscanf(stdin, "%u", &v);
@@ -146,21 +158,18 @@ void performTest(Graph *g) {
         color[v] = v;
     }
 
-    for (unsigned int i = 0; i < g->getSize(); i++) {
-        color[i] = INT_MAX;
-        d[i] = 0;
-    }
 
     while (!f.empty()) {
         unsigned int u = f.dequeue();
-
         Edge *tmp = g->nodes[u];
         while (tmp != NULL) {
+            //fprintf(stdout, "from:%u tmp->to=%u color:%u\n", u, tmp->to, color[tmp->to]);
             if (color[tmp->to] == INT_MAX) {
                 d[tmp->to] = d[u] + 1;
                 color[tmp->to] = FindSet(color[u]);
                 f.enqueue(tmp->to);
             } else {
+                //fprintf(stdout, "kolory %u %u\n", FindSet(color[u]), FindSet(color[tmp->to]));
                 if(FindSet(color[u]) != FindSet(color[tmp->to])) {
                     //FUZJA!
                     fprintf(stdout, "%u ", (d[u]+1));
@@ -171,6 +180,7 @@ void performTest(Graph *g) {
             tmp = tmp->next;
         }
     }
+    fprintf(stdout, "\n");
     delete[] d;
 }
 
@@ -190,13 +200,15 @@ int main () {
         Graph *g = new Graph(Vn);
 
         while (En--) {
-            unsigned int u, v;
-            fscanf(stdin, "%u %u", &u, &v);
-            g->addEdge(u, v);
-
+            unsigned int fromNode, toNode;
+            fscanf(stdin, "%u %u", &fromNode, &toNode);
+            g->addEdge(fromNode, toNode);
         }
+        //fprintf(stdout, )
         performTest(g);
         delete g;
+        //return 0;
+
     }
 
     return 0;
