@@ -3,9 +3,47 @@
 #define INT_MAX 2147483647
 
 #define QSIZE 1000000
-#define ESIZE 16000000
+#define ESIZE 1000000
 
 unsigned long long int minD = INT_MAX;
+
+struct node {
+    int v;
+    node* next;
+};
+
+node** F;
+
+int* p;
+
+node* mempool;
+int memcount;
+
+int FindSet(int x) {
+    if(x != p[x])
+        return FindSet(p[x]);
+    return x;
+}
+
+void Union(int x, int y) {
+    int nx = FindSet(x);
+    int ny = FindSet(y);
+    if(nx == ny)
+        return;
+    else if(nx<ny)
+        p[nx] = ny;
+    else
+        p[ny] = nx;
+
+    node* n = &(mempool[memcount++]);
+    n->next = F[x];
+    n->v = y;
+    F[x] = n;
+    n = &(mempool[memcount++]);
+    n->next = F[y];
+    n->v = x;
+    F[y] = n;
+}
 
 class Queue {
     public:
@@ -93,51 +131,50 @@ public:
     }
 };
 
-void performTest(Graph *g, unsigned int fromNode, unsigned int toNode) {
-    if(fromNode == toNode) {
-        minD = 0;
-        return;
-    }
-    bool *checked = new bool[g->getSize()];
+void performTest(Graph *g) {
     unsigned int *d = new unsigned int[g->getSize()];
 
-    for (unsigned int i = 0; i < g->getSize(); i++) {
-        checked[i] = false;
-        d[i] = 0;
+    unsigned int *color = new unsigned int[g->getSize()];
+    Queue f;
+    unsigned int M;
+    fscanf(stdin, "%u", &M);
+    F = new node*[M];
+    while(M--) {
+        unsigned int v;
+        fscanf(stdin, "%u", &v);
+        f.enqueue(v);
+        color[v] = v;
     }
 
-    checked[fromNode] = true;
-
-    Queue f;
-    f.enqueue(fromNode);
+    for (unsigned int i = 0; i < g->getSize(); i++) {
+        color[i] = INT_MAX;
+        d[i] = 0;
+    }
 
     while (!f.empty()) {
         unsigned int u = f.dequeue();
 
         Edge *tmp = g->nodes[u];
         while (tmp != NULL) {
-            if (!checked[tmp->to]) {
+            if (color[tmp->to] == INT_MAX) {
                 d[tmp->to] = d[u] + 1;
-                if(tmp->to == toNode) {
-                    unsigned int ret = d[tmp->to];
-                    if(ret<minD){
-                        minD = ret;
-                    }
-
-                    delete[] checked;
-                    delete[] d;
-                    return;
-                } else {
-                    checked[tmp->to] = true;
-                    f.enqueue(tmp->to);
+                color[tmp->to] = FindSet(color[u]);
+                f.enqueue(tmp->to);
+            } else {
+                if(FindSet(color[u]) != FindSet(color[tmp->to])) {
+                    //FUZJA!
+                    fprintf(stdout, "%u ", (d[u]+1));
+                    //UNION
+                    Union(color[tmp->to], color[u]);
                 }
             }
             tmp = tmp->next;
         }
     }
-    delete[] checked;
     delete[] d;
 }
+
+unsigned int *color;
 
 int main () {
 
@@ -153,28 +190,13 @@ int main () {
         Graph *g = new Graph(Vn);
 
         while (En--) {
-            unsigned int fromNode, toNode;
-            fscanf(stdin, "%u %u", &fromNode, &toNode);
-            g->addEdge(fromNode, toNode);
+            unsigned int u, v;
+            fscanf(stdin, "%u %u", &u, &v);
+            g->addEdge(u, v);
 
         }
-
-        unsigned int D;
-        fscanf(stdin, "%u", &D);
-        unsigned int* zapytania = new unsigned int[D];
-        for(unsigned int i = 0; i < D; i++) {
-            fscanf(stdin, "%u", &(zapytania[i]));
-        }
-        for(unsigned int fromIndex = 0; fromIndex < D; fromIndex++) {
-            for(unsigned int toIndex = fromIndex+1; toIndex < D; toIndex++) {
-                performTest(g, zapytania[fromIndex], zapytania[toIndex]);
-            }
-        }
-
-        fprintf(stdout, "%llu\n", minD);
-        minD = INT_MAX;
+        performTest(g);
         delete g;
-        delete[] zapytania;
     }
 
     return 0;
